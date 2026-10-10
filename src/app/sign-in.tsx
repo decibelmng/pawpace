@@ -1,3 +1,4 @@
+import Constants, { ExecutionEnvironment } from 'expo-constants';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { useState } from 'react';
 import { Alert, Platform, Text, View } from 'react-native';
@@ -6,6 +7,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Body, Button, Field, Label } from '@/components/ui';
 import { errorText, supabase } from '@/lib/supabase';
 import { space, type, usePalette } from '@/lib/theme';
+
+// Expo Go doesn't include the native Apple button; it appears in the real iPhone build.
+const inExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
 
 export default function SignIn() {
   const c = usePalette();
@@ -64,7 +68,7 @@ export default function SignIn() {
         </View>
 
         <View style={{ gap: space.md }}>
-          {Platform.OS === 'ios' ? (
+          {Platform.OS === 'ios' && !inExpoGo ? (
             <AppleAuthentication.AppleAuthenticationButton
               buttonType={AppleAuthentication.AppleAuthenticationButtonType.CONTINUE}
               buttonStyle={c.bg === '#FFFFFF' ? AppleAuthentication.AppleAuthenticationButtonStyle.BLACK : AppleAuthentication.AppleAuthenticationButtonStyle.WHITE}
