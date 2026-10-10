@@ -13,7 +13,8 @@ export function Screen({ children, scroll = true, padded = true }: { children: R
   const inner = <View style={{ padding: padded ? space.lg : 0, gap: space.lg, flex: scroll ? undefined : 1 }}>{children}</View>;
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: c.bg }} edges={['top']}>
-      {scroll ? <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingBottom: 48 }}>{inner}</ScrollView> : inner}
+      {scroll ? <ScrollView keyboardShouldPersistTaps="handled" keyboardDismissMode="interactive"
+        automaticallyAdjustKeyboardInsets contentContainerStyle={{ paddingBottom: 48 }}>{inner}</ScrollView> : inner}
     </SafeAreaView>
   );
 }

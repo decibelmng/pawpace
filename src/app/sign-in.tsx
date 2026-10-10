@@ -1,7 +1,7 @@
 import Constants, { ExecutionEnvironment } from 'expo-constants';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, ScrollView, Text, View } from 'react-native';
+import { Alert, Platform, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Body, Button, Field, Label } from '@/components/ui';
@@ -83,8 +83,7 @@ export default function SignIn() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: c.bg }}>
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
-      <ScrollView keyboardShouldPersistTaps="handled"
+      <ScrollView keyboardShouldPersistTaps="handled" keyboardDismissMode="interactive" automaticallyAdjustKeyboardInsets
         contentContainerStyle={{ flexGrow: 1, padding: space.xl, justifyContent: 'space-between', gap: space.xl }}>
         <View style={{ gap: space.md, marginTop: space.xxl }}>
           <Text numberOfLines={1} adjustsFontSizeToFit
@@ -134,7 +133,6 @@ export default function SignIn() {
           <Body small muted>By continuing you agree to the PawPace Terms and Privacy Policy.</Body>
         </View>
       </ScrollView>
-      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
