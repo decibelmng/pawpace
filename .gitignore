@@ -44,3 +44,7 @@ example
 
 # secrets
 .env
+deno.lock
+push-log.txt
+build-log.txt
+*.command

@@ -62,6 +62,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "9285fda3-1c95-4bb0-a79b-f7ef6807cc08"
+      }
+    },
+    "owner": "decibelmng"
   }
 }
