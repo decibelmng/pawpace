@@ -1,7 +1,7 @@
 import Constants, { ExecutionEnvironment } from 'expo-constants';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { useState } from 'react';
-import { Alert, Platform, Text, View } from 'react-native';
+import { Alert, KeyboardAvoidingView, Platform, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Body, Button, Field, Label } from '@/components/ui';
@@ -15,6 +15,8 @@ export default function SignIn() {
   const c = usePalette();
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
+  const [password, setPassword] = useState('');
+  const [useCode, setUseCode] = useState(false);
   const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
 
@@ -40,8 +42,31 @@ export default function SignIn() {
     }
   };
 
+  const validEmail = () => /^\S+@\S+\.\S+$/.test(email.trim());
+
+  const passwordSignIn = async () => {
+    if (!validEmail()) return Alert.alert('Check your email', 'Enter a full email address.');
+    if (password.length < 6) return Alert.alert('Password too short', 'Use at least 6 characters.');
+    setBusy(true);
+    const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+    setBusy(false);
+    if (error) Alert.alert('Could not sign in', 'Check your email and password, or tap Create account if you are new.');
+  };
+
+  const createAccount = async () => {
+    if (!validEmail()) return Alert.alert('Check your email', 'Enter a full email address.');
+    if (password.length < 6) return Alert.alert('Password too short', 'Use at least 6 characters.');
+    setBusy(true);
+    const { data, error } = await supabase.auth.signUp({ email: email.trim(), password });
+    setBusy(false);
+    if (error) return Alert.alert('Account not created', errorText(error));
+    if (!data.session) {
+      Alert.alert('Almost there', 'This email may already have an account, or email confirmation is still on. Try Sign in, or use a different email.');
+    }
+  };
+
   const sendCode = async () => {
-    if (!/^\S+@\S+\.\S+$/.test(email.trim())) return Alert.alert('Check your email', 'Enter a full email address.');
+    if (!validEmail()) return Alert.alert('Check your email', 'Enter a full email address.');
     setBusy(true);
     const { error } = await supabase.auth.signInWithOtp({ email: email.trim(), options: { shouldCreateUser: true } });
     setBusy(false);
@@ -58,9 +83,12 @@ export default function SignIn() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: c.bg }}>
-      <View style={{ flex: 1, padding: space.xl, justifyContent: 'space-between' }}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
+      <ScrollView keyboardShouldPersistTaps="handled"
+        contentContainerStyle={{ flexGrow: 1, padding: space.xl, justifyContent: 'space-between', gap: space.xl }}>
         <View style={{ gap: space.md, marginTop: space.xxl }}>
-          <Text style={{ fontSize: 56, fontWeight: '900', fontStyle: 'italic', letterSpacing: -1, color: c.ink }}>
+          <Text numberOfLines={1} adjustsFontSizeToFit
+            style={{ fontSize: 52, fontWeight: '900', fontStyle: 'italic', letterSpacing: -1, paddingRight: 8, color: c.ink }}>
             PAW<Text style={{ color: c.accent }}>PACE</Text>
           </Text>
           <Text style={[type.title, { color: c.ink }]}>Running buddies for your dog.</Text>
@@ -77,12 +105,23 @@ export default function SignIn() {
               onPress={apple}
             />
           ) : null}
-          <Label>Or use your email</Label>
-          {!sent ? (
+          <Label>{inExpoGo ? 'Sign in' : 'Or use your email'}</Label>
+          {!useCode ? (
+            <>
+              <Field label="Email" value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address"
+                autoComplete="email" placeholder="you@example.com" />
+              <Field label="Password" value={password} onChangeText={setPassword} secureTextEntry
+                autoComplete="password" placeholder="At least 6 characters" />
+              <Button title="Sign in" onPress={passwordSignIn} loading={busy} kind="dark" />
+              <Button title="Create account" kind="line" onPress={createAccount} />
+              <Button title="Email me a code instead" kind="line" onPress={() => setUseCode(true)} />
+            </>
+          ) : !sent ? (
             <>
               <Field label="Email" value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address"
                 autoComplete="email" placeholder="you@example.com" />
               <Button title="Email me a code" onPress={sendCode} loading={busy} kind="dark" />
+              <Button title="Use a password instead" kind="line" onPress={() => setUseCode(false)} />
             </>
           ) : (
             <>
@@ -94,7 +133,8 @@ export default function SignIn() {
           )}
           <Body small muted>By continuing you agree to the PawPace Terms and Privacy Policy.</Body>
         </View>
-      </View>
+      </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
